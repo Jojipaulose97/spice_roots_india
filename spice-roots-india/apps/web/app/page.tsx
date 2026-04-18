@@ -3,10 +3,10 @@ import Link from "next/link";
 import { Button } from "@/app/components/ui/Button";
 
 const FEATURED_PRODUCTS = [
-  { id: 1, name: "Premium Green Cardamom", price: 450, oldPrice: 600, img: "https://picsum.photos/seed/cardamom/600/600" },
-  { id: 2, name: "Tellicherry Black Pepper", price: 320, oldPrice: 420, img: "https://picsum.photos/seed/pepper/600/600" },
-  { id: 3, name: "Ceylon Cinnamon Quills", price: 550, oldPrice: 700, img: "https://picsum.photos/seed/cinnamon/600/600" },
-  { id: 4, name: "Clove Buds (Idukki)", price: 280, oldPrice: 380, img: "https://picsum.photos/seed/cloves/600/600" },
+  { id: 1, name: "Premium Green Cardamom", price: 450, oldPrice: 600, img: "https://res.cloudinary.com/dpr6iiff6/image/upload/v1776477468/cardamom_qdu26x.webp" },
+  { id: 2, name: "Tellicherry Black Pepper", price: 320, oldPrice: 420, img: "https://res.cloudinary.com/dpr6iiff6/image/upload/v1776477468/pepper_sgo22q.webp" },
+  { id: 3, name: "Ceylon Cinnamon Quills", price: 550, oldPrice: 700, img: "https://res.cloudinary.com/dpr6iiff6/image/upload/v1776477468/cinamon_wdn1pl.webp" },
+  { id: 4, name: "Clove Buds (Idukki)", price: 280, oldPrice: 380, img: "https://res.cloudinary.com/dpr6iiff6/image/upload/v1776477468/nutmeg_hk2lao.webp" },
 ];
 
 const TRUST_BADGES = [
@@ -22,7 +22,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative h-[85vh] flex items-center justify-center overflow-hidden bg-stone-900">
         <Image
-          src="https://picsum.photos/seed/hero/1920/1920"
+          src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=1920&q=90"
           alt="Kerala Spice Farm"
           fill
           className="object-cover opacity-50"
@@ -393,7 +393,7 @@ export default function Home() {
 
       {/* WhatsApp Floating Button */}
       <a
-        href="https://wa.me/919876543210"
+        href="https://wa.me/919544770078"
         target="_blank"
         rel="noreferrer"
         className="fixed bottom-6 right-6 bg-green-500 text-white p-4 rounded-full shadow-2xl hover:bg-green-600 hover:scale-110 transition-all z-50"

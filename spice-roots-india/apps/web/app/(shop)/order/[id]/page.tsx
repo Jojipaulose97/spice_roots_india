@@ -1,7 +1,8 @@
 import Link from "next/link";
 import {  Button  } from "@/app/components/ui/Button";
 
-export default function OrderConfirmationPage({ params }: { params: { id: string } }) {
+export default async function OrderConfirmationPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   return (
     <div className="container mx-auto px-4 py-16 max-w-3xl text-center">
       <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -18,7 +19,7 @@ export default function OrderConfirmationPage({ params }: { params: { id: string
         <div className="grid grid-cols-2 gap-6 text-sm">
           <div>
             <h4 className="text-stone-500 uppercase tracking-widest text-xs font-semibold mb-1">Order Number</h4>
-            <p className="font-bold text-stone-900 text-lg">#{params.id.slice(0,8).toUpperCase()}</p>
+            <p className="font-bold text-stone-900 text-lg">#{id.slice(0,8).toUpperCase()}</p>
           </div>
           <div>
             <h4 className="text-stone-500 uppercase tracking-widest text-xs font-semibold mb-1">Date</h4>
@@ -65,7 +66,7 @@ export default function OrderConfirmationPage({ params }: { params: { id: string
         <Link href="/shop">
           <Button variant="outline" size="lg" className="border-stone-300 bg-white shadow-sm hover:bg-stone-50 w-full sm:w-auto">Continue Shopping</Button>
         </Link>
-        <Link href={`/track?orderId=${params.id}`}>
+        <Link href={`/track?orderId=${id}`}>
           <Button size="lg" className="bg-stone-900 hover:bg-orange-600 text-white w-full sm:w-auto shadow-md">Track Order</Button>
         </Link>
       </div>

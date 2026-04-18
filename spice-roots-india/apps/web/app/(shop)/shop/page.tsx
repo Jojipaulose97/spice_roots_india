@@ -6,18 +6,16 @@ import { useState, useMemo } from 'react';
 import { useCart } from '@/app/context/CartContext';
 
 const ALL_PRODUCTS = [
-  { id: 1,  name: "Premium Green Cardamom (8mm)", category: "Whole Spices", price: 450, oldPrice: 600, img: "https://picsum.photos/seed/cardamom/600/600", rating: 4.9, reviews: 128 },
-  { id: 2,  name: "Tellicherry Black Pepper",     category: "Whole Spices", price: 320, oldPrice: 420, img: "https://picsum.photos/seed/pepper/600/600",   rating: 4.8, reviews: 94  },
-  { id: 3,  name: "Ceylon Cinnamon Quills",        category: "Whole Spices", price: 550, oldPrice: 700, img: "https://picsum.photos/seed/cinnamon/600/600", rating: 4.7, reviews: 76  },
-  { id: 4,  name: "Clove Buds (Idukki)",           category: "Whole Spices", price: 280, oldPrice: 380, img: "https://picsum.photos/seed/cloves/600/600",   rating: 4.8, reviews: 62  },
-  { id: 5,  name: "Turmeric Powder (Lakadong)",    category: "Powders",      price: 180, oldPrice: 240, img: "https://picsum.photos/seed/turmeric/600/600", rating: 4.9, reviews: 210 },
-  { id: 6,  name: "Red Chilli Powder (Kashmir)",   category: "Powders",      price: 200, oldPrice: 280, img: "https://picsum.photos/seed/chilli/600/600",   rating: 4.6, reviews: 88  },
-  { id: 7,  name: "Wayanad Coffee Powder",         category: "Tea & Coffee", price: 380, oldPrice: 500, img: "https://picsum.photos/seed/coffee/600/600",   rating: 5.0, reviews: 155 },
-  { id: 8,  name: "Mountain Masala Chai",          category: "Tea & Coffee", price: 260, oldPrice: 350, img: "https://picsum.photos/seed/chai/600/600",     rating: 4.7, reviews: 103 },
-  { id: 9,  name: "Star Anise (Chakra Phool)",     category: "Whole Spices", price: 320, oldPrice: 420, img: "https://picsum.photos/seed/staranise/600/600",rating: 4.5, reviews: 44  },
-  { id: 10, name: "Coriander Seeds",               category: "Whole Spices", price: 120, oldPrice: 160, img: "https://picsum.photos/seed/coriander/600/600",rating: 4.7, reviews: 67  },
-  { id: 11, name: "Kerala Gift Hamper (Small)",    category: "Gift Hampers", price: 1499,oldPrice:1999, img: "https://picsum.photos/seed/hamper/600/600",   rating: 4.9, reviews: 37  },
-  { id: 12, name: "Premium Spice Box (12 items)",  category: "Gift Hampers", price: 2499,oldPrice:3200, img: "https://picsum.photos/seed/giftbox/600/600",  rating: 5.0, reviews: 22  },
+  { id: 1,  name: "Premium Green Cardamom (8mm)", category: "Whole Spices", price: 450, oldPrice: 600, img: "https://res.cloudinary.com/dpr6iiff6/image/upload/v1776477468/cardamom_qdu26x.webp",  rating: 4.9, reviews: 128 },
+  { id: 2,  name: "Tellicherry Black Pepper",     category: "Whole Spices", price: 320, oldPrice: 420, img: "https://res.cloudinary.com/dpr6iiff6/image/upload/v1776477468/pepper_sgo22q.webp",    rating: 4.8, reviews: 94  },
+  { id: 3,  name: "Ceylon Cinnamon Quills",        category: "Whole Spices", price: 550, oldPrice: 700, img: "https://res.cloudinary.com/dpr6iiff6/image/upload/v1776477468/cinamon_wdn1pl.webp",   rating: 4.7, reviews: 76  },
+  { id: 4,  name: "Clove Buds (Idukki)",           category: "Whole Spices", price: 280, oldPrice: 380, img: "https://res.cloudinary.com/dpr6iiff6/image/upload/v1776477468/nutmeg_hk2lao.webp",    rating: 4.8, reviews: 62  },
+  { id: 5,  name: "Turmeric Powder (Lakadong)",    category: "Powders",      price: 180, oldPrice: 240, img: "https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=600&q=80",            rating: 4.9, reviews: 210 },
+  { id: 7,  name: "Wayanad Coffee Powder",         category: "Tea & Coffee", price: 380, oldPrice: 500, img: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=600&q=80",            rating: 5.0, reviews: 155 },
+  { id: 8,  name: "Mountain Masala Chai",          category: "Tea & Coffee", price: 260, oldPrice: 350, img: "https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=600&q=80",            rating: 4.7, reviews: 103 },
+  { id: 9,  name: "Star Anise (Chakra Phool)",     category: "Whole Spices", price: 320, oldPrice: 420, img: "https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=600&q=80",            rating: 4.5, reviews: 44  },
+  { id: 11, name: "Kerala Gift Hamper (Small)",    category: "Gift Hampers", price: 1499,oldPrice:1999, img: "https://images.unsplash.com/photo-1607344645866-009c320b63e0?w=600&q=80",            rating: 4.9, reviews: 37  },
+  { id: 12, name: "Premium Spice Box (12 items)",  category: "Gift Hampers", price: 2499,oldPrice:3200, img: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&q=80",            rating: 5.0, reviews: 22  },
 ];
 
 const CATEGORIES = ['All', 'Whole Spices', 'Powders', 'Tea & Coffee', 'Gift Hampers'];

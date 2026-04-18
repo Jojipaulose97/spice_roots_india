@@ -1,296 +1,274 @@
 'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { useState } from "react";
+import { useState } from 'react';
+import Link from 'next/link';
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, Legend, BarChart, Bar,
+} from 'recharts';
 
-/* ── Tiny reusable card ── */
-function StatCard({ label, value, sub, subColor, icon, trend }: {
-  label: string; value: string; sub: string;
-  subColor: string; icon: React.ReactNode; trend?: 'up' | 'down' | 'neutral';
-}) {
+const G = '#1A3A28';
+const GOLD = '#C9A040';
+
+/* ── Mock data ── */
+const REVENUE_7D = [
+  { date: 'Apr 12', revenue: 28400, orders: 34 },
+  { date: 'Apr 13', revenue: 31200, orders: 38 },
+  { date: 'Apr 14', revenue: 24800, orders: 29 },
+  { date: 'Apr 15', revenue: 42100, orders: 51 },
+  { date: 'Apr 16', revenue: 38600, orders: 47 },
+  { date: 'Apr 17', revenue: 51200, orders: 62 },
+  { date: 'Apr 18', revenue: 45200, orders: 55 },
+];
+const REVENUE_30D = Array.from({ length: 30 }, (_, i) => ({
+  date: `Apr ${i + 1 > 18 ? 'Mar ' + (i - 17) : i + 1 < 10 ? 'Apr 0' + (i + 1) : 'Apr ' + (i + 1)}`,
+  revenue: 18000 + Math.floor(Math.random() * 40000),
+  orders: 20 + Math.floor(Math.random() * 60),
+}));
+const REVENUE_90D = Array.from({ length: 12 }, (_, i) => ({
+  date: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][i],
+  revenue: 280000 + Math.floor(Math.random() * 400000),
+  orders: 300 + Math.floor(Math.random() * 600),
+})).slice(0, 12);
+
+const RECENT_ORDERS = [
+  { id: '#SR-4821', customer: 'Priya Menon',    location: 'Kochi',     items: 2, total: 900,   status: 'Shipped',    time: '2 min ago' },
+  { id: '#SR-4820', customer: 'Rahul Sharma',   location: 'Delhi',     items: 2, total: 870,   status: 'Processing', time: '14 min ago' },
+  { id: '#SR-4819', customer: 'Anitha K.',       location: 'Bengaluru', items: 1, total: 1499,  status: 'Delivered',  time: '1 hr ago' },
+  { id: '#SR-4818', customer: 'Ravi Pillai',     location: 'Chennai',   items: 3, total: 540,   status: 'Packed',     time: '2 hr ago' },
+  { id: '#SR-4817', customer: 'Sara Thomas',     location: 'Mumbai',    items: 1, total: 380,   status: 'Confirmed',  time: '3 hr ago' },
+  { id: '#SR-4816', customer: 'James Roy',       location: 'Pune',      items: 1, total: 2499,  status: 'Delivered',  time: '5 hr ago' },
+  { id: '#SR-4815', customer: 'Meera Nair',      location: 'Thrissur',  items: 4, total: 1280,  status: 'Shipped',    time: '6 hr ago' },
+  { id: '#SR-4814', customer: 'Arjun Singh',     location: 'Jaipur',    items: 2, total: 760,   status: 'Pending',    time: '8 hr ago' },
+];
+
+const LOW_STOCK = [
+  { name: 'Clove Buds (Idukki)',  sku: 'SRI-CLV-001', stock: 7,  reorder: 50 },
+  { name: 'Wayanad Coffee 500g',  sku: 'SRI-COF-003', stock: 3,  reorder: 30 },
+  { name: 'Kerala Gift Hamper L', sku: 'SRI-GFT-002', stock: 5,  reorder: 20 },
+  { name: 'Star Anise 50g',       sku: 'SRI-STA-001', stock: 0,  reorder: 40 },
+];
+
+const TOP_PRODUCTS = [
+  { name: 'Green Cardamom 8mm', units: 423, revenue: 190350, pct: 100 },
+  { name: 'Tellicherry Pepper',  units: 210, revenue: 67200,  pct: 50  },
+  { name: 'Ceylon Cinnamon',     units: 188, revenue: 103400, pct: 44  },
+  { name: 'Wayanad Coffee',      units: 143, revenue: 54340,  pct: 34  },
+  { name: 'Clove Buds',          units: 119, revenue: 33320,  pct: 28  },
+];
+
+const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
+  Pending:    { bg: '#FEF3C7', color: '#92400E' },
+  Confirmed:  { bg: '#DBEAFE', color: '#1E40AF' },
+  Packed:     { bg: '#EDE9FE', color: '#5B21B6' },
+  Shipped:    { bg: '#CCFBF1', color: '#065F46' },
+  Processing: { bg: '#FEF9C3', color: '#713F12' },
+  Delivered:  { bg: '#D1FAE5', color: '#065F46' },
+  Cancelled:  { bg: '#FEE2E2', color: '#991B1B' },
+};
+
+function KPI({ label, value, sub, trend, icon, subColor }: { label: string; value: string; sub: string; trend?: 'up'|'down'|'neutral'; icon: string; subColor?: string }) {
   return (
-    <div className="bg-white rounded-2xl p-6 border border-stone-100 shadow-sm hover:shadow-md transition">
-      <div className="flex items-start justify-between mb-4">
-        <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600">{icon}</div>
+    <div style={{ backgroundColor: '#fff', borderRadius: 16, padding: 20, border: '1px solid #F3F4F6', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
+        <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: '#F0FDF4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>{icon}</div>
         {trend && (
-          <span className={`text-xs font-bold px-2 py-1 rounded-full ${trend === 'up' ? 'bg-green-100 text-green-700' : trend === 'down' ? 'bg-red-100 text-red-600' : 'bg-stone-100 text-stone-500'}`}>
-            {trend === 'up' ? '↑' : trend === 'down' ? '↓' : '─'} {sub.split(' ')[0]}
+          <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '3px 8px', borderRadius: 9999, backgroundColor: trend === 'up' ? '#D1FAE5' : trend === 'down' ? '#FEE2E2' : '#F3F4F6', color: trend === 'up' ? '#065F46' : trend === 'down' ? '#991B1B' : '#6B7280' }}>
+            {trend === 'up' ? '↑' : trend === 'down' ? '↓' : '—'} {sub}
           </span>
         )}
       </div>
-      <p className="text-3xl font-extrabold text-stone-900 mb-1">{value}</p>
-      <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider">{label}</p>
-      {!trend && <p className={`text-xs mt-1.5 font-medium ${subColor}`}>{sub}</p>}
+      <p style={{ fontSize: '1.75rem', fontWeight: 900, color: '#111827', marginBottom: 2 }}>{value}</p>
+      <p style={{ fontSize: '0.72rem', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</p>
+      {!trend && <p style={{ fontSize: '0.75rem', marginTop: 4, fontWeight: 500, color: subColor ?? '#6B7280' }}>{sub}</p>}
     </div>
   );
 }
 
-/* ── Sparkline (SVG) ── */
-function Sparkline({ vals, color }: { vals: number[]; color: string }) {
-  const max = Math.max(...vals);
-  const min = Math.min(...vals);
-  const W = 120; const H = 40;
-  const pts = vals.map((v, i) => {
-    const x = (i / (vals.length - 1)) * W;
-    const y = H - ((v - min) / (max - min || 1)) * H * 0.9;
-    return `${x},${y}`;
-  }).join(' ');
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (!active || !payload?.length) return null;
   return (
-    <svg width={W} height={H} className="overflow-visible">
-      <polyline points={pts} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round"/>
-      <circle cx={pts.split(' ').at(-1)?.split(',')[0]} cy={pts.split(' ').at(-1)?.split(',')[1]} r="3" fill={color}/>
-    </svg>
+    <div style={{ backgroundColor: '#fff', border: '1px solid #E5E7EB', borderRadius: 10, padding: '10px 14px', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', fontSize: '0.8rem' }}>
+      <p style={{ fontWeight: 700, color: '#111827', marginBottom: 6 }}>{label}</p>
+      {payload.map((p: any) => (
+        <p key={p.dataKey} style={{ color: p.color, marginBottom: 2 }}>
+          {p.dataKey === 'revenue' ? `₹${p.value.toLocaleString('en-IN')}` : `${p.value} orders`}
+        </p>
+      ))}
+    </div>
   );
-}
-
-const RECENT_ORDERS = [
-  { id: '#SR-4821', customer: 'Priya Menon',    location: 'Kochi',     items: 'Green Cardamom × 2', total: '₹900',   status: 'Shipped',    statusColor: 'bg-blue-100 text-blue-700',   time: '2 min ago' },
-  { id: '#SR-4820', customer: 'Rahul Sharma',   location: 'Delhi',     items: 'Pepper + Cinnamon',  total: '₹870',   status: 'Processing', statusColor: 'bg-amber-100 text-amber-700',  time: '14 min ago' },
-  { id: '#SR-4819', customer: 'Anitha K.',       location: 'Bengaluru', items: 'Gift Hamper (S)',    total: '₹1,499', status: 'Delivered',  statusColor: 'bg-green-100 text-green-700', time: '1 hr ago' },
-  { id: '#SR-4818', customer: 'Ravi Pillai',     location: 'Chennai',   items: 'Turmeric × 3',      total: '₹540',   status: 'Shipped',    statusColor: 'bg-blue-100 text-blue-700',  time: '2 hr ago' },
-  { id: '#SR-4817', customer: 'Sara Thomas',     location: 'Mumbai',    items: 'Wayanad Coffee',     total: '₹380',   status: 'Processing', statusColor: 'bg-amber-100 text-amber-700', time: '3 hr ago' },
-  { id: '#SR-4816', customer: 'James Roy',       location: 'Pune',      items: 'Spice Box Premium',  total: '₹2,499', status: 'Delivered',  statusColor: 'bg-green-100 text-green-700', time: '5 hr ago' },
-];
-
-const TOP_SELLING = [
-  { name: 'Green Cardamom 8mm', units: 423, revenue: '₹1,90,350', img: 'https://picsum.photos/seed/cardamom/100/100', stock: 82, trend: [40,55,70,60,85,90,100] },
-  { name: 'Tellicherry Pepper',  units: 210, revenue: '₹67,200',   img: 'https://picsum.photos/seed/pepper/100/100',   stock: 44, trend: [30,40,35,50,45,65,70] },
-  { name: 'Ceylon Cinnamon',     units: 188, revenue: '₹1,03,400', img: 'https://picsum.photos/seed/cinnamon/100/100', stock: 61, trend: [20,25,40,35,55,60,65] },
-  { name: 'Wayanad Coffee',      units: 143, revenue: '₹54,340',   img: 'https://picsum.photos/seed/coffee/100/100',   stock: 29, trend: [10,20,30,25,40,50,55] },
-  { name: 'Clove Buds (Idukki)', units: 119, revenue: '₹33,320',   img: 'https://picsum.photos/seed/cloves/100/100',   stock: 67, trend: [15,18,22,20,35,42,48] },
-];
-
-const REVENUE_POINTS = [38000,42000,35000,51000,47000,63000,58000,72000,68000,80000,77000,90000,85000,95000,92000,105000,98000,112000,108000,121000,115000,130000,128000,142000,138000,151000,145000,160000,155000,165000];
+};
 
 export default function AdminDashboard() {
-  const [tab, setTab] = useState<'all' | 'processing' | 'shipped' | 'delivered'>('all');
-  const [period, setPeriod] = useState<'7d' | '30d' | '90d'>('30d');
+  const [period, setPeriod] = useState<'7d'|'30d'|'90d'>('7d');
 
-  const filteredOrders = tab === 'all'
-    ? RECENT_ORDERS
-    : RECENT_ORDERS.filter(o => o.status.toLowerCase() === tab);
-
-  const revenueSlice = period === '7d' ? REVENUE_POINTS.slice(-7) : period === '30d' ? REVENUE_POINTS : REVENUE_POINTS;
-  const maxRev = Math.max(...revenueSlice);
-  const minRev = Math.min(...revenueSlice);
+  const chartData = period === '7d' ? REVENUE_7D : period === '30d' ? REVENUE_30D : REVENUE_90D;
 
   return (
-    <div className="space-y-8">
-      {/* ── Header ── */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <p className="text-stone-500 text-sm font-medium">Good morning, Admin 👋</p>
-          <h1 className="text-3xl font-extrabold text-stone-900">Dashboard</h1>
+          <p style={{ color: '#6B7280', fontSize: '0.85rem' }}>Friday, 18 April 2026</p>
+          <h1 style={{ fontWeight: 900, fontSize: '1.6rem', color: G }}>Good morning, Admin 👋</h1>
         </div>
-        <div className="flex gap-3">
-          <Link href="/admin/products/new" className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition shadow">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/></svg>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <Link href="/admin/orders?status=pending" style={{ display: 'flex', alignItems: 'center', gap: 6, border: '1px solid #E5E7EB', backgroundColor: '#fff', color: '#374151', fontWeight: 600, fontSize: '0.8rem', padding: '8px 14px', borderRadius: 10, textDecoration: 'none' }} className="hover:bg-stone-50 transition">View Pending</Link>
+          <Link href="/admin/products" style={{ display: 'flex', alignItems: 'center', gap: 6, backgroundColor: G, color: '#fff', fontWeight: 700, fontSize: '0.8rem', padding: '8px 14px', borderRadius: 10, textDecoration: 'none' }} className="hover:opacity-90 transition">
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4"/></svg>
             Add Product
           </Link>
-          <Link href="/admin/orders" className="flex items-center gap-2 bg-white border border-stone-200 text-stone-700 hover:bg-stone-50 font-semibold px-4 py-2.5 rounded-xl text-sm transition">
-            View Orders
-          </Link>
         </div>
       </div>
 
-      {/* ── 4 Stat Cards ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-        <StatCard
-          label="Today's Revenue" value="₹45,200" sub="12.5% vs yesterday" subColor="text-green-600" trend="up"
-          icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>}
-        />
-        <StatCard
-          label="Today's Orders" value="142" sub="↑ 8 from yesterday" subColor="text-stone-500" trend="up"
-          icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>}
-        />
-        <StatCard
-          label="Pending Fulfillment" value="38" sub="Needs action today" subColor="text-amber-600" trend="neutral"
-          icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>}
-        />
-        <StatCard
-          label="Low Stock Items" value="3" sub="Restock required" subColor="text-red-500" trend="down"
-          icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>}
-        />
+      {/* KPI Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+        <KPI label="Today's Orders" value="142" sub="8.5% vs yesterday" trend="up" icon="📦"/>
+        <KPI label="Revenue Today"  value="₹45,200" sub="12.5% vs yesterday" trend="up" icon="💰"/>
+        <KPI label="Total Customers" value="1,240" sub="+38 this month" icon="👥" subColor="#2563EB"/>
+        <KPI label="Pending Orders" value="38" sub="Needs action now" icon="⏳" subColor="#DC2626"/>
       </div>
 
-      {/* ── Revenue Chart + Top Selling ── */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Revenue Chart */}
-        <div className="xl:col-span-2 bg-white rounded-2xl p-6 border border-stone-100 shadow-sm">
-          <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-            <div>
-              <h2 className="font-bold text-stone-900 text-lg">Revenue Trend</h2>
-              <p className="text-3xl font-extrabold text-stone-900 mt-1">₹45.2L <span className="text-green-500 text-base font-semibold">↑ 18.4%</span></p>
-            </div>
-            <div className="flex gap-2 bg-stone-100 rounded-xl p-1">
-              {(['7d', '30d', '90d'] as const).map(p => (
-                <button key={p} onClick={() => setPeriod(p)} className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition ${period === p ? 'bg-white shadow text-stone-900' : 'text-stone-500 hover:text-stone-700'}`}>
-                  {p === '7d' ? '7 Days' : p === '30d' ? '30 Days' : '90 Days'}
-                </button>
-              ))}
-            </div>
+      {/* Revenue Chart */}
+      <div style={{ backgroundColor: '#fff', borderRadius: 16, padding: 24, border: '1px solid #F3F4F6', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+          <div>
+            <h2 style={{ fontWeight: 800, color: '#111827', fontSize: '1rem' }}>Revenue & Orders</h2>
+            <p style={{ fontSize: '1.6rem', fontWeight: 900, color: G }}>₹45.2L <span style={{ fontSize: '0.9rem', color: '#16A34A', fontWeight: 600 }}>↑ 18.4%</span></p>
           </div>
+          <div style={{ display: 'flex', gap: 4, backgroundColor: '#F9FAFB', borderRadius: 10, padding: 4 }}>
+            {(['7d','30d','90d'] as const).map(p => (
+              <button key={p} onClick={() => setPeriod(p)} style={{ padding: '6px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.78rem', backgroundColor: period === p ? '#fff' : 'transparent', color: period === p ? G : '#6B7280', boxShadow: period === p ? '0 1px 4px rgba(0,0,0,0.1)' : 'none', transition: 'all 0.15s' }}>
+                {p === '7d' ? '7 Days' : p === '30d' ? '30 Days' : '90 Days'}
+              </button>
+            ))}
+          </div>
+        </div>
+        <ResponsiveContainer width="100%" height={240}>
+          <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6"/>
+            <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#9CA3AF' }} tickLine={false} axisLine={false}/>
+            <YAxis yAxisId="revenue" tick={{ fontSize: 11, fill: '#9CA3AF' }} tickLine={false} axisLine={false} tickFormatter={v => `₹${(v/1000).toFixed(0)}k`} width={48}/>
+            <YAxis yAxisId="orders" orientation="right" tick={{ fontSize: 11, fill: '#9CA3AF' }} tickLine={false} axisLine={false} width={32}/>
+            <Tooltip content={<CustomTooltip/>}/>
+            <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '0.78rem' }}/>
+            <Line yAxisId="revenue" type="monotone" dataKey="revenue" stroke={G} strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} name="Revenue"/>
+            <Line yAxisId="orders"  type="monotone" dataKey="orders"  stroke={GOLD} strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} name="Orders"/>
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
 
-          {/* SVG Chart */}
-          <div className="h-56 w-full relative">
-            <svg viewBox="0 0 600 200" className="w-full h-full" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#ea580c" stopOpacity="0.25"/>
-                  <stop offset="100%" stopColor="#ea580c" stopOpacity="0"/>
-                </linearGradient>
-              </defs>
-              {/* Grid lines */}
-              {[0.25, 0.5, 0.75, 1].map(p => (
-                <line key={p} x1="0" y1={p * 200} x2="600" y2={p * 200} stroke="#e7e5e4" strokeWidth="1"/>
-              ))}
-              {/* Area */}
-              <path
-                d={`M${revenueSlice.map((v, i) => `${(i / (revenueSlice.length - 1)) * 600},${180 - ((v - minRev) / (maxRev - minRev || 1)) * 170}`).join(' L')} L600,200 L0,200 Z`}
-                fill="url(#revGrad)"
-              />
-              {/* Line */}
-              <polyline
-                points={revenueSlice.map((v, i) => `${(i / (revenueSlice.length - 1)) * 600},${180 - ((v - minRev) / (maxRev - minRev || 1)) * 170}`).join(' ')}
-                fill="none" stroke="#ea580c" strokeWidth="2.5" strokeLinejoin="round"
-              />
-            </svg>
-            <div className="absolute bottom-0 left-0 right-0 flex justify-between text-xs text-stone-400 pb-1">
-              {(period === '7d'
-                ? ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
-                : ['Mar 17','Mar 24','Mar 31','Apr 7','Apr 14','Apr 16']
-              ).map((l, i) => <span key={i}>{l}</span>)}
-            </div>
+      {/* Recent Orders + Low Stock */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20 }}>
+
+        {/* Recent Orders */}
+        <div style={{ backgroundColor: '#fff', borderRadius: 16, border: '1px solid #F3F4F6', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', overflow: 'hidden' }}>
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid #F3F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h2 style={{ fontWeight: 800, color: '#111827', fontSize: '0.95rem' }}>Recent Orders</h2>
+            <Link href="/admin/orders" style={{ fontSize: '0.75rem', color: G, fontWeight: 700, textDecoration: 'none' }}>View all →</Link>
+          </div>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+              <thead>
+                <tr style={{ backgroundColor: '#F9FAFB' }}>
+                  {['Order', 'Customer', 'Total', 'Status', 'Time'].map(h => (
+                    <th key={h} style={{ padding: '8px 16px', textAlign: 'left', fontWeight: 600, color: '#6B7280', fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {RECENT_ORDERS.map((o, i) => {
+                  const s = STATUS_STYLES[o.status] ?? STATUS_STYLES.Pending;
+                  return (
+                    <tr key={o.id} style={{ backgroundColor: i % 2 === 0 ? '#fff' : '#FAFAFA', borderBottom: '1px solid #F3F4F6' }}>
+                      <td style={{ padding: '10px 16px', fontWeight: 700, color: G, whiteSpace: 'nowrap' }}>{o.id}</td>
+                      <td style={{ padding: '10px 16px' }}>
+                        <p style={{ fontWeight: 600, color: '#111827', whiteSpace: 'nowrap' }}>{o.customer}</p>
+                        <p style={{ fontSize: '0.7rem', color: '#9CA3AF' }}>{o.location}</p>
+                      </td>
+                      <td style={{ padding: '10px 16px', fontWeight: 700, color: '#111827', whiteSpace: 'nowrap' }}>₹{o.total.toLocaleString('en-IN')}</td>
+                      <td style={{ padding: '10px 16px' }}>
+                        <span style={{ ...s, padding: '3px 10px', borderRadius: 9999, fontWeight: 700, fontSize: '0.7rem', whiteSpace: 'nowrap' }}>{o.status}</span>
+                      </td>
+                      <td style={{ padding: '10px 16px', color: '#9CA3AF', fontSize: '0.75rem', whiteSpace: 'nowrap' }}>{o.time}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
 
-        {/* Top Selling */}
-        <div className="bg-white rounded-2xl p-6 border border-stone-100 shadow-sm">
-          <h2 className="font-bold text-stone-900 text-lg mb-5">Top Products</h2>
-          <div className="space-y-5">
-            {TOP_SELLING.map((item, i) => (
-              <div key={item.name} className="flex items-center gap-3">
-                <span className="text-xs font-extrabold text-stone-300 w-4 shrink-0">{i + 1}</span>
-                <div className="relative w-10 h-10 rounded-xl bg-stone-100 overflow-hidden shrink-0">
-                  <Image src={item.img} alt={item.name} fill className="object-cover" sizes="40px"/>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-stone-900 text-xs truncate">{item.name}</p>
-                  <p className="text-xs text-stone-400">{item.units} units · {item.revenue}</p>
-                  <div className="h-1.5 bg-stone-100 rounded-full mt-1.5 overflow-hidden">
-                    <div className="h-full bg-orange-500 rounded-full" style={{ width: `${(item.units / 423) * 100}%` }}/>
+        {/* Low Stock + Top Products (right column) */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+          {/* Low Stock */}
+          <div style={{ backgroundColor: '#fff', borderRadius: 16, border: '1px solid #FEE2E2', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', padding: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+              <span style={{ fontSize: 18 }}>🚨</span>
+              <h2 style={{ fontWeight: 800, color: '#111827', fontSize: '0.95rem' }}>Low Stock Alert</h2>
+              <span style={{ marginLeft: 'auto', backgroundColor: '#FEE2E2', color: '#991B1B', fontSize: '0.7rem', fontWeight: 800, padding: '2px 8px', borderRadius: 9999 }}>{LOW_STOCK.filter(p => p.stock === 0).length} out of stock</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {LOW_STOCK.map(p => (
+                <div key={p.sku} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: 10, border: p.stock === 0 ? '1px solid #FCA5A5' : '1px solid #FED7AA', backgroundColor: p.stock === 0 ? '#FFF5F5' : '#FFFBEB' }}>
+                  <div>
+                    <p style={{ fontWeight: 600, color: '#111827', fontSize: '0.82rem' }}>{p.name}</p>
+                    <p style={{ fontSize: '0.68rem', color: '#9CA3AF', fontFamily: 'monospace' }}>{p.sku}</p>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ textAlign: 'right' }}>
+                      <p style={{ fontWeight: 900, fontSize: '1.2rem', color: p.stock === 0 ? '#DC2626' : '#D97706' }}>{p.stock}</p>
+                      <p style={{ fontSize: '0.65rem', color: '#9CA3AF' }}>units left</p>
+                    </div>
+                    <Link href="/admin/inventory" style={{ fontSize: '0.72rem', fontWeight: 700, color: G, backgroundColor: '#F0FDF4', padding: '4px 10px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap' }}>Restock</Link>
                   </div>
                 </div>
-                <Sparkline vals={item.trend} color={item.stock < 35 ? '#ef4444' : '#22c55e'}/>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Category Revenue Breakdown ── */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {[
-          { cat: 'Whole Spices', rev: '₹2,85,400', pct: 63, color: 'bg-orange-500' },
-          { cat: 'Powders',      rev: '₹72,100',   pct: 16, color: 'bg-amber-400' },
-          { cat: 'Tea & Coffee', rev: '₹54,200',   pct: 12, color: 'bg-stone-600' },
-          { cat: 'Gift Hampers', rev: '₹40,500',   pct: 9,  color: 'bg-rose-400'  },
-        ].map(c => (
-          <div key={c.cat} className="bg-white rounded-2xl p-5 border border-stone-100 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-bold text-stone-500 uppercase tracking-wider">{c.cat}</p>
-              <span className="text-xs font-bold text-stone-900">{c.pct}%</span>
-            </div>
-            <p className="text-xl font-extrabold text-stone-900 mb-3">{c.rev}</p>
-            <div className="h-2 bg-stone-100 rounded-full overflow-hidden">
-              <div className={`h-full ${c.color} rounded-full`} style={{ width: `${c.pct}%` }}/>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* ── Recent Orders Table ── */}
-      <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-        <div className="px-6 py-5 flex items-center justify-between flex-wrap gap-4 border-b border-stone-100">
-          <h2 className="font-bold text-stone-900 text-lg">Recent Orders</h2>
-          <div className="flex gap-1 bg-stone-100 rounded-xl p-1">
-            {(['all', 'processing', 'shipped', 'delivered'] as const).map(t => (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition ${tab === t ? 'bg-white shadow text-stone-900' : 'text-stone-500 hover:text-stone-700'}`}
-              >{t}</button>
-            ))}
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-stone-50 text-stone-500 text-xs uppercase font-semibold tracking-wider">
-              <tr>
-                <th className="px-6 py-3 text-left">Order ID</th>
-                <th className="px-6 py-3 text-left">Customer</th>
-                <th className="px-6 py-3 text-left hidden md:table-cell">Items</th>
-                <th className="px-6 py-3 text-left">Total</th>
-                <th className="px-6 py-3 text-left">Status</th>
-                <th className="px-6 py-3 text-left hidden lg:table-cell">Time</th>
-                <th className="px-6 py-3 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-stone-50">
-              {filteredOrders.map(order => (
-                <tr key={order.id} className="hover:bg-stone-50 transition">
-                  <td className="px-6 py-4 font-mono text-xs font-bold text-orange-600">{order.id}</td>
-                  <td className="px-6 py-4">
-                    <p className="font-semibold text-stone-900 text-sm">{order.customer}</p>
-                    <p className="text-xs text-stone-400">{order.location}</p>
-                  </td>
-                  <td className="px-6 py-4 text-xs text-stone-600 hidden md:table-cell">{order.items}</td>
-                  <td className="px-6 py-4 font-bold text-stone-900 text-sm">{order.total}</td>
-                  <td className="px-6 py-4">
-                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${order.statusColor}`}>{order.status}</span>
-                  </td>
-                  <td className="px-6 py-4 text-xs text-stone-400 hidden lg:table-cell">{order.time}</td>
-                  <td className="px-6 py-4 text-right">
-                    <button className="text-xs text-orange-600 font-semibold hover:underline">View</button>
-                  </td>
-                </tr>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </div>
+          </div>
 
-        <div className="px-6 py-4 border-t border-stone-100 flex justify-between items-center">
-          <p className="text-xs text-stone-400">Showing {filteredOrders.length} of {RECENT_ORDERS.length} orders</p>
-          <Link href="/admin/orders" className="text-xs text-orange-600 font-semibold hover:underline">View all orders →</Link>
+          {/* Top Products */}
+          <div style={{ backgroundColor: '#fff', borderRadius: 16, border: '1px solid #F3F4F6', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', padding: 20 }}>
+            <h2 style={{ fontWeight: 800, color: '#111827', fontSize: '0.95rem', marginBottom: 14 }}>Top Products This Month</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {TOP_PRODUCTS.map((p, i) => (
+                <div key={p.name}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontWeight: 800, color: '#D1D5DB', fontSize: '0.7rem', width: 14 }}>#{i + 1}</span>
+                      <p style={{ fontWeight: 600, color: '#111827', fontSize: '0.82rem' }}>{p.name}</p>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <p style={{ fontWeight: 700, fontSize: '0.78rem', color: G }}>₹{(p.revenue/1000).toFixed(0)}k</p>
+                      <p style={{ fontSize: '0.65rem', color: '#9CA3AF' }}>{p.units} units</p>
+                    </div>
+                  </div>
+                  <div style={{ height: 5, backgroundColor: '#F3F4F6', borderRadius: 9999, overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${p.pct}%`, backgroundColor: i === 0 ? G : GOLD, borderRadius: 9999 }}/>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* ── Low Stock Alert ── */}
-      <div className="bg-red-50 border border-red-200 rounded-2xl p-6">
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center">
-            <svg className="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-          </div>
-          <h2 className="font-bold text-red-800">🚨 Low Stock Alert</h2>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* Quick Actions */}
+      <div style={{ backgroundColor: '#fff', borderRadius: 16, border: '1px solid #F3F4F6', padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+        <h2 style={{ fontWeight: 800, color: '#111827', fontSize: '0.95rem', marginBottom: 14 }}>Quick Actions</h2>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
           {[
-            { name: 'Clove Buds (Idukki)', stock: 7,  sku: 'SRI-CLV-001' },
-            { name: 'Wayanad Coffee 500g',  stock: 3,  sku: 'SRI-COF-003' },
-            { name: 'Kerala Gift Hamper L', stock: 5,  sku: 'SRI-GFT-002' },
-          ].map(item => (
-            <div key={item.name} className="bg-white border border-red-200 rounded-xl p-4 flex items-center justify-between gap-3">
-              <div>
-                <p className="font-semibold text-stone-900 text-sm">{item.name}</p>
-                <p className="text-xs text-stone-400 font-mono">{item.sku}</p>
-              </div>
-              <div className="text-right shrink-0">
-                <p className="text-2xl font-extrabold text-red-600">{item.stock}</p>
-                <p className="text-xs text-red-400 font-medium">units left</p>
-              </div>
-            </div>
+            { label: 'Add New Product',        href: '/admin/products',  icon: '📦', bg: G,       color: '#fff' },
+            { label: 'View Pending Orders',    href: '/admin/orders',    icon: '⏳', bg: '#FFFBEB', color: '#92400E' },
+            { label: 'Create Coupon',          href: '/admin/coupons',   icon: '🏷️', bg: '#EFF6FF', color: '#1E40AF' },
+            { label: 'Inventory Control',      href: '/admin/inventory', icon: '📊', bg: '#F0FDF4', color: '#065F46' },
+            { label: 'View Analytics',         href: '/admin/analytics', icon: '📈', bg: '#FAF5FF', color: '#5B21B6' },
+          ].map(a => (
+            <Link key={a.label} href={a.href} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', borderRadius: 12, backgroundColor: a.bg, color: a.color, fontWeight: 600, fontSize: '0.82rem', textDecoration: 'none', border: '1px solid transparent', transition: 'all 0.15s' }} className="hover:opacity-90 hover:scale-105">
+              <span>{a.icon}</span>{a.label}
+            </Link>
           ))}
         </div>
       </div>
