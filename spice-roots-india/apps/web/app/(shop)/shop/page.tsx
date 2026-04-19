@@ -143,7 +143,7 @@ export default function ShopPage() {
             <button onClick={() => { setActiveCategory('All'); setMaxPrice(3200); }} className="mt-4 text-orange-600 underline text-sm">Clear filters</button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
             {filtered.map((prod) => {
               const isAdded = addedId === prod.id;
               const inCart = cartIds.has(prod.id);
@@ -168,21 +168,21 @@ export default function ShopPage() {
                     )}
                   </div>
 
-                  <div className="p-5 flex flex-col flex-1">
-                    <p className="text-xs text-stone-400 font-semibold uppercase tracking-wider mb-1">{prod.category}</p>
-                    <h3 className="font-semibold text-base text-stone-900 mb-1 group-hover:text-orange-700 transition leading-snug">{prod.name}</h3>
-                    <div className="flex items-center gap-1 mb-3">
-                      <span className="text-amber-400 text-xs">{'★'.repeat(Math.floor(prod.rating))}</span>
-                      <span className="text-xs text-stone-400">({prod.reviews})</span>
+                  <div className="p-3 sm:p-5 flex flex-col flex-1">
+                    <p className="text-[10px] sm:text-xs text-stone-400 font-semibold uppercase tracking-wider mb-0.5 sm:mb-1">{prod.category}</p>
+                    <h3 className="font-semibold text-sm sm:text-base text-stone-900 mb-1 group-hover:text-orange-700 transition leading-snug line-clamp-2">{prod.name}</h3>
+                    <div className="flex items-center gap-0.5 sm:gap-1 mb-2 sm:mb-3">
+                      <span className="text-amber-400 text-[10px] sm:text-xs">{'★'.repeat(Math.floor(prod.rating))}</span>
+                      <span className="text-[10px] sm:text-xs text-stone-400">({prod.reviews})</span>
                     </div>
-                    <div className="mt-auto flex justify-between items-center">
-                      <div>
-                        <p className="text-orange-600 font-bold text-lg">₹{prod.price}</p>
-                        <p className="text-xs text-stone-400 line-through">₹{prod.oldPrice}</p>
+                    <div className="mt-auto">
+                      <div className="mb-2">
+                        <p className="text-orange-600 font-bold text-base sm:text-lg">₹{prod.price}</p>
+                        <p className="text-[10px] sm:text-xs text-stone-400 line-through">₹{prod.oldPrice}</p>
                       </div>
                       <button
                         onClick={(e) => handleAddToCart(e, prod)}
-                        className={`flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-semibold transition-all shadow-sm ${
+                        className={`w-full flex items-center justify-center gap-1 px-2 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm ${
                           isAdded
                             ? 'bg-green-600 text-white scale-95'
                             : 'bg-stone-900 text-white hover:bg-orange-600'
@@ -192,7 +192,7 @@ export default function ShopPage() {
                           <>✓ Added</>
                         ) : (
                           <>
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/></svg>
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/></svg>
                             Add
                           </>
                         )}

@@ -179,19 +179,58 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {mobileOpen && (
-          <div className="md:hidden bg-white border-t border-stone-100 px-6 py-4 flex flex-col gap-4 shadow-xl">
-            {[
-              { href: '/shop', label: 'Shop' },
-              { href: '/about', label: 'Our Farm' },
-              { href: '/contact', label: 'Contact' },
-              { href: '/track', label: 'Track Order' },
-              { href: '/account', label: 'Account' },
-              { href: '/login', label: 'Sign In' },
-            ].map(link => (
-              <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)} className="font-medium text-stone-700 hover:text-orange-600 transition">
-                {link.label}
+          <div className="md:hidden bg-white border-t border-stone-100 shadow-2xl">
+            {/* Nav Links */}
+            <div className="px-4 pt-4 pb-2 space-y-1">
+              {[
+                { href: '/shop', label: 'Shop', icon: (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                )},
+                { href: '/about', label: 'Our Farm', icon: (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/></svg>
+                )},
+                { href: '/contact', label: 'Contact', icon: (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                )},
+                { href: '/track', label: 'Track Order', icon: (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                )},
+              ].map(link => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-700 font-medium hover:bg-orange-50 hover:text-orange-700 transition-all group"
+                >
+                  <span className="text-stone-400 group-hover:text-orange-500 transition-colors">{link.icon}</span>
+                  {link.label}
+                  <svg className="w-4 h-4 ml-auto text-stone-300 group-hover:text-orange-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
+                </Link>
+              ))}
+            </div>
+
+            {/* Divider */}
+            <div className="mx-4 my-2 border-t border-stone-100" />
+
+            {/* Account Actions */}
+            <div className="px-4 pb-4 flex gap-3">
+              <Link
+                href="/account"
+                onClick={() => setMobileOpen(false)}
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-stone-200 text-stone-700 font-semibold text-sm hover:border-orange-300 hover:text-orange-700 transition-all"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                Account
               </Link>
-            ))}
+              <Link
+                href="/login"
+                onClick={() => setMobileOpen(false)}
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-stone-900 text-white font-semibold text-sm hover:bg-orange-600 transition-all"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+                Sign In
+              </Link>
+            </div>
           </div>
         )}
       </header>

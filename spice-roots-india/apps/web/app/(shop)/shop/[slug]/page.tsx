@@ -118,14 +118,14 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       </div>
 
       {/* Main Product Section */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 py-8 lg:py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-14 py-6 lg:py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 xl:gap-16">
 
           {/* Left — Image Gallery */}
           <ImageGallery main={product.img} thumbnails={product.thumbnails} name={product.name} />
 
           {/* Right — Product Info */}
-          <div className="lg:sticky lg:top-24 lg:self-start space-y-5">
+          <div className="lg:sticky lg:top-24 lg:self-start space-y-4 sm:space-y-5">
 
             {/* Category + Stock */}
             <div className="flex items-center justify-between flex-wrap gap-2">
@@ -139,25 +139,18 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
             {/* Title */}
             <div>
-              <h1 className="text-3xl lg:text-4xl font-extrabold text-stone-900 leading-tight tracking-tight">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-stone-900 leading-tight tracking-tight">
                 {product.name}
               </h1>
-              <p className="text-stone-400 text-sm mt-1.5">SKU: {product.sku} · Origin: <span className="text-stone-600 font-medium">{product.origin}</span></p>
+              <p className="text-stone-400 text-xs sm:text-sm mt-1.5">SKU: {product.sku} · Origin: <span className="text-stone-600 font-medium">{product.origin}</span></p>
             </div>
 
             {/* Rating */}
-            <div className="flex items-center gap-3">
-              <div className="flex text-amber-400 text-lg leading-none">★★★★★</div>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex text-amber-400 text-base sm:text-lg leading-none">★★★★★</div>
               <span className="text-stone-700 text-sm font-semibold">4.9</span>
               <span className="text-stone-400 text-sm">·</span>
               <a href="#reviews" className="text-stone-500 text-sm hover:text-orange-600 transition">128 Reviews</a>
-            </div>
-
-            {/* Price */}
-            <div className="flex items-baseline gap-3 pb-5 border-b border-stone-100">
-              <span className="text-4xl font-black text-stone-900">₹{product.price}</span>
-              <span className="text-xl text-stone-400 line-through font-medium">₹{product.originalPrice}</span>
-              <span className="text-sm font-bold bg-green-100 text-green-700 px-2.5 py-1 rounded-full">{discount}% OFF</span>
             </div>
 
             {/* Interactive Controls */}
@@ -185,8 +178,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             </div>
 
             {/* Trust Badges */}
-            <div className="bg-linear-to-br from-stone-50 to-orange-50 rounded-2xl p-5 border border-orange-100">
-              <ul className="space-y-2.5">
+            <div className="bg-linear-to-br from-stone-50 to-orange-50 rounded-2xl p-4 sm:p-5 border border-orange-100">
+              <ul className="space-y-2">
                 {[
                   { icon: '🚚', text: 'Free shipping on orders above ₹999' },
                   { icon: '💵', text: 'Cash on Delivery available' },
@@ -194,8 +187,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                   { icon: '↩️', text: '7-day easy return policy' },
                   { icon: '🔒', text: 'Secure payment — Razorpay / UPI / COD' },
                 ].map(b => (
-                  <li key={b.text} className="flex items-center gap-3 text-sm text-stone-700">
-                    <span className="text-base">{b.icon}</span>
+                  <li key={b.text} className="flex items-center gap-3 text-xs sm:text-sm text-stone-700">
+                    <span className="text-base shrink-0">{b.icon}</span>
                     {b.text}
                   </li>
                 ))}
