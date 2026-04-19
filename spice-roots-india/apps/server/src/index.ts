@@ -36,6 +36,7 @@ import orderRoutes from './routes/order.routes';
 import userRoutes from './routes/user.routes';
 import couponRoutes from './routes/coupon.routes';
 import adminRoutes from './routes/admin.routes';
+import flashSaleRoutes from './routes/flashsale.routes';
 
 // Mount API Routes
 app.use('/api/v1/auth', authRoutes);
@@ -44,6 +45,7 @@ app.use('/api/v1/orders', orderRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/coupons', couponRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/flash-sale', flashSaleRoutes);
 
 // Health Check Endpoint
 app.get('/health', (req: Request, res: Response) => {
